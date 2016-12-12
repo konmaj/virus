@@ -30,12 +30,12 @@ class VirusGenealogy {
   private:
     Virus::id_type stem_id_;
     
-    VirusGenealogy<Virus> (const VirusGenealogy<Virus> &other);
-    
-    VirusGenealogy<Virus>& operator=(const VirusGenealogy<Virus> &other);
-    
   public:
     VirusGenealogy(Virus::id_type const &stem_id);
+    
+    VirusGenealogy(const VirusGenealogy<Virus> &other) = delete;
+    
+    VirusGenealogy<Virus>& operator=(const VirusGenealogy<Virus> &other) = delete;
     
     Virus::id_type get_stem_id() const;
     
