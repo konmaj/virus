@@ -4,14 +4,36 @@
 
 #include <exception>
 
-class VirusAlreadyCreated : public std::exception {}
+class VirusAlreadyCreated : public std::exception {
+  public:
+    const char* what() const {
+        return "VirusAlreadyCreated";
+    }
+}
 
-class VirusNotFound : public std::exception {}
+class VirusNotFound : public std::exception {
+  public:
+    const char* what() const {
+        return "VirusNotFound";
+    }
+}
 
-class TriedToRemoveStemVirus : public std::exception {}
+class TriedToRemoveStemVirus : public std::exception {
+  public:
+    const char* what() const {
+        return "TriedToRemoveStemVirus";
+    }
+}
 
 template <typename Virus>
 class VirusGenealogy {
+  private:
+    Virus::id_type stem_id_;
+    
+    VirusGenealogy<Virus> (const VirusGenealogy<Virus> &other);
+    
+    VirusGenealogy<Virus>& operator=(const VirusGenealogy<Virus> &other);
+    
   public:
     VirusGenealogy(Virus::id_type const &stem_id);
     
