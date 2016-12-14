@@ -4,8 +4,8 @@
 
 #include <exception>
 #include <map>
-#include <vector>
 #include <memory>
+#include <vector>
 
 class VirusAlreadyCreated : public std::exception {
   public:
@@ -36,18 +36,20 @@ private:
     // Internal type for Virus IDs
     using id_type = typename Virus::id_type;
 
-    // Root virus ID
-    id_type stem_id_;
+    // Root virus node
+    std::shared_ptr<Node> stem_node_;
 
-    std::map<id_type, std::weak_ptr<Node>> nodes_;
+    typename std::map<id_type, std::weak_ptr<Node>> nodes_;
 
     struct Node {
-        std::vector< std::weak_ptr<Node> > parents;
-        std::vector< std::shared_ptr<Node> > children;
+        std::vector<std::shared_ptr<Node>> children;
+        std::vector<std::weak_ptr<Node>> parents;
 
-        std::map<id_type, std::weak_ptr<Node>>::iterator it;
+        typename std::map<id_type, std::weak_ptr<Node>>::iterator it;
 
         Virus virus;
+
+        // TODO (constructor, destructor)
     };
 
 public:
@@ -60,24 +62,56 @@ public:
     VirusGenealogy<Virus>& operator=(const VirusGenealogy<Virus> &other) = delete;
 
     id_type get_stem_id() const {
-        return stem_id_;
+        return (stem_node_->virus).get_id();
+    }
+
+    bool exists(id_type const &id) const {
+        return nodes_.find(id) != nodes_.end();
     }
 
     std::vector<id_type> get_children(id_type const &id) const {} // Hubert
 
     std::vector<id_type> get_parents(id_type const &id) const {} // Hubert
 
-    bool exists(id_type const &id) const {} // Konrad
+    Virus& operator[](id_type const &id) const {
+        if (!exists(id)) {
+            throw VirusNotFound();
+        }
 
-    Virus& operator[](id_type const &id) const {} // Konrad
+        return (nodes_.find(id)->second).lock()->virus;
+    }
 
     void create(id_type const &id, id_type const &parent_id) {} // Hubert
 
     void create(id_type const &id, std::vector<id_type> const &parent_ids) {} // Hubert
 
-    void connect(id_type const &child_id, id_type const &parent_id) {} // Konrad
+    void connect(id_type const &child_id, id_type const &parent_id) {
+        if (!exists(child_id) || !exists(parent_id)) {
+            throw VirusNotFound();
+        }
 
-    void remove(id_type const &id) {} // Konrad
+        std::shared_ptr<Node> child_ptr = (nodes_.find(child_id)->second).lock();
+        std::shared_ptr<Node> parent_ptr = (nodes_.find(parent_id)->second).lock();
+        auto parents_copy = child_ptr->parents;
+        auto children_copy = parent_ptr->children;
+
+        parents_copy.emplace_back(std::weak_ptr<Node>(parent_ptr));
+        children_copy.emplace_back(std::shared_ptr<Node>(child_ptr));
+
+        (child_ptr->parents).swap(parents_copy);
+        (parent_ptr->children).swap(children_copy);
+    }
+
+    void remove(id_type const &id) {
+        if (!exists(id)) {
+            throw VirusNotFound();
+        }
+        if (id == get_stem_id()) {
+            throw TriedToRemoveStemVirus();
+        }
+
+        // TODO
+    }
 };
 
 #endif //VIRUS_GENEALOGY_H_
