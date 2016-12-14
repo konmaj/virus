@@ -84,7 +84,11 @@ public:
         return (nodes_.find(id)->second).lock()->virus;
     }
 
-    void create(id_type const &id, id_type const &parent_id) {} // Hubert
+    void create(id_type const &id, id_type const &parent_id) {
+        if (!exists(child_id) || !exists(parent_id)) {
+            throw VirusNotFound();
+        }
+    }
 
     void create(id_type const &id, std::vector<id_type> const &parent_ids) {} // Hubert
 
