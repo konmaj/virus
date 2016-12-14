@@ -46,6 +46,8 @@ private:
         std::vector< std::shared_ptr<Node> > children;
 
         std::map<id_type, std::weak_ptr<Node>>::iterator it;
+
+        Virus virus;
     };
 
 public:
