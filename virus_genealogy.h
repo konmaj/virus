@@ -60,21 +60,21 @@ public:
         return stem_id_;
     }
     
-    std::vector<id_type> get_children(id_type const &id) const;
+    std::vector<id_type> get_children(id_type const &id) const {}
     
-    std::vector<id_type> get_parents(id_type const &id) const;
+    std::vector<id_type> get_parents(id_type const &id) const {}
     
-    bool exists(id_type const &id) const;
+    bool exists(id_type const &id) const {}
     
-    Virus& operator[](id_type const &id) const;
+    Virus& operator[](id_type const &id) const {}
     
-    void create(id_type const &id, id_type const &parent_id);
+    void create(id_type const &id, id_type const &parent_id) {}
     
-    void create(id_type const &id, std::vector<id_type> const &parent_ids);
+    void create(id_type const &id, std::vector<id_type> const &parent_ids) {}
     
-    void connect(id_type const &child_id, id_type const &parent_id);
+    void connect(id_type const &child_id, id_type const &parent_id) {}
     
-    void remove(id_type const &id);
+    void remove(id_type const &id) {}
 };
 
 #endif //VIRUS_GENEALOGY_H_
