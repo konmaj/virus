@@ -32,7 +32,7 @@ template <typename Virus>
 class VirusGenealogy {
 private:
 
-    class Node;
+    struct Node;
     // Internal type for Virus IDs
     using id_type = typename Virus::id_type;
 
@@ -45,11 +45,14 @@ private:
         std::vector<std::shared_ptr<Node>> children;
         std::vector<std::weak_ptr<Node>> parents;
 
-        typename std::map<id_type, std::weak_ptr<Node>>::iterator it;
+        typename std::map<id_type, std::weak_ptr<Node>>::iterator position;
 
         Virus virus;
 
-        // TODO (constructor, destructor)
+        // TODO (constructor)
+        ~Node() {
+            nodes_.erase(position);
+        }
     };
 
 public:
@@ -110,7 +113,9 @@ public:
             throw TriedToRemoveStemVirus();
         }
 
-        // TODO
+        std::shared_ptr<Node> node_ptr = (nodes_.find(id)->second).lock();
+        std::vector<std::vector<std::shared_ptr<Node>>> children_copies(node_ptr->parents.size());
+        // TODO (copy vectors of children and erase id from them)
     }
 };
 
