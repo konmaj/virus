@@ -35,16 +35,19 @@ private:
     class Node;
     // Internal type for Virus IDs
     using id_type = typename Virus::id_type;
-    using Node_ptr = std::shared_ptr<Node>;
 
     // Root virus ID
     id_type stem_id_;
 
-    std::map<id_type, Node_ptr> nodes_;
+    std::map<id_type, std::weak_ptr<Node>> nodes_;
 
+
+    // Change to struct for easier access??
     class Node {
-        std::vector<Node_ptr> parents;
-        std::vector<Node_ptr> children;
+        std::vector< std::weak_ptr<Node> > parents;
+        std::vector< std::shared_ptr<Node> > children;
+
+        std::map<id_type, std::weak_ptr<Node>>::iterator it;
     };
 
 public:
