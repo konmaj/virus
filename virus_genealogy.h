@@ -85,12 +85,27 @@ public:
     }
 
     void create(id_type const &id, id_type const &parent_id) {
-        if (!exists(child_id) || !exists(parent_id)) {
+        if (exists(id)) {
+            throw VirusAlreadyCreated();
+        }
+
+        if (!exists(parent_id)) {
             throw VirusNotFound();
         }
+
     }
 
-    void create(id_type const &id, std::vector<id_type> const &parent_ids) {} // Hubert
+    void create(id_type const &id, std::vector<id_type> const &parent_ids) {
+        if (exists(id)) {
+            throw VirusAlreadyCreated();
+        }
+
+        for (const auto& parent : parent_id) {
+            if(!exists(parent)) {
+                throw VirusNotFound();
+            }
+        }
+    }
 
     void connect(id_type const &child_id, id_type const &parent_id) {
         if (!exists(child_id) || !exists(parent_id)) {
