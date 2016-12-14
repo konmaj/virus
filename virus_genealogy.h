@@ -48,7 +48,7 @@ private:
     };
 
 public:
-    VirusGenealogy(Virus::id_type const &stem_id) {
+    VirusGenealogy(id_type const &stem_id) {
     
     }
     
@@ -60,21 +60,21 @@ public:
         return stem_id_;
     }
     
-    std::vector<Virus::id_type> get_children(Virus::id_type const &id) const;
+    std::vector<id_type> get_children(id_type const &id) const;
     
-    std::vector<Virus::id_type> get_parents(Virus::id_type const &id) const;
+    std::vector<id_type> get_parents(id_type const &id) const;
     
-    bool exists(Virus::id_type const &id) const;
+    bool exists(id_type const &id) const;
     
-    Virus& operator[](Virus::id_type const &id) const;
+    Virus& operator[](id_type const &id) const;
     
-    void create(Virus::id_type const &id, Virus::id_type const &parent_id);
+    void create(id_type const &id, id_type const &parent_id);
     
-    void create(Virus::id_type const &id, std::vector<Virus::id_type> const &parent_ids);
+    void create(id_type const &id, std::vector<id_type> const &parent_ids);
     
-    void connect(Virus::id_type const &child_id, virus::id_type const &parent_id);
+    void connect(id_type const &child_id, id_type const &parent_id);
     
-    void remove(Virus::id_type const &id);
+    void remove(id_type const &id);
 };
 
 #endif //VIRUS_GENEALOGY_H_
