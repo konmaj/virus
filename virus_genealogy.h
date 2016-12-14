@@ -3,41 +3,62 @@
 #define VIRUS_GENEALOGY_H_
 
 #include <exception>
+#include <map>
+#include <vector>
+#include <memory>
 
 class VirusAlreadyCreated : public std::exception {
   public:
-    const char* what() const {
+    const char* what() const noexcept {
         return "VirusAlreadyCreated";
     }
-}
+};
 
 class VirusNotFound : public std::exception {
   public:
-    const char* what() const {
+    const char* what() const noexcept {
         return "VirusNotFound";
     }
-}
+};
 
 class TriedToRemoveStemVirus : public std::exception {
   public:
-    const char* what() const {
+    const char* what() const noexcept {
         return "TriedToRemoveStemVirus";
     }
-}
+};
 
 template <typename Virus>
 class VirusGenealogy {
-  private:
-    Virus::id_type stem_id_;
+private:
     
-  public:
-    VirusGenealogy(Virus::id_type const &stem_id);
+    class Node;
+    // Internal type for Virus IDs
+    using id_type = typename Virus::id_type;
+    using Node_ptr = std::shared_ptr<Node>;
+
+    // Root virus ID
+    id_type stem_id_;
+
+    std::map<id_type, Node_ptr> nodes_;
+
+    class Node {
+        std::vector<Node_ptr> parents;
+        std::vector<Node_ptr> children;
+    };
+
+public:
+    VirusGenealogy(Virus::id_type const &stem_id) {
+    
+    }
     
     VirusGenealogy(const VirusGenealogy<Virus> &other) = delete;
     
     VirusGenealogy<Virus>& operator=(const VirusGenealogy<Virus> &other) = delete;
     
-    Virus::id_type get_stem_id() const;
+    id_type get_stem_id() const {
+        return stem_id_;
+    }
     
     std::vector<Virus::id_type> get_children(Virus::id_type const &id) const;
     
