@@ -41,9 +41,7 @@ private:
 
     std::map<id_type, std::weak_ptr<Node>> nodes_;
 
-
-    // Change to struct for easier access??
-    class Node {
+    struct Node {
         std::vector< std::weak_ptr<Node> > parents;
         std::vector< std::shared_ptr<Node> > children;
 
