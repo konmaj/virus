@@ -38,12 +38,9 @@ class VirusGenealogy {
 
 public:
     VirusGenealogy(id_type const &stem_id) { // can throw bad_alloc
-        std::shared_ptr<Node> new_stem_node = std::make_shared<Node>(stem_id);
-
-        stem_node_ = new_stem_node;
-
+        stem_node = std::make_shared<Node>(stem_id);
         auto map_it = nodes_.insert(std::make_pair(stem_id, new_stem_node)).first;
-        new_stem_node->position = map_it;
+        stem_node->position = map_it;
     }
 
     VirusGenealogy(const VirusGenealogy<Virus> &other) = delete;
