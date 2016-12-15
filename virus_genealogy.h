@@ -54,10 +54,12 @@ public:
     }
 
     std::vector<id_type> get_children(id_type const &id) const {
+        throw_if_not_exists(id);
         return {};
     }
 
     std::vector<id_type> get_parents(id_type const &id) const {
+        throw_if_not_exists(id);
         return {};
     }
 
@@ -74,9 +76,7 @@ public:
             throw VirusAlreadyCreated();
         }
 
-        if (!exists(parent_id)) {
-            throw VirusNotFound();
-        }
+        throw_if_not_exists(parent_id);
 
         std::shared_ptr<Node> new_node = std::make_shared<Node>(id);
         auto map_it = nodes_.insert(std::make_pair(id, new_node)).first;
@@ -97,9 +97,7 @@ public:
         }
 
         for (const auto& parent : parent_ids) {
-            if(!exists(parent)) {
-                throw VirusNotFound();
-            }
+            throw_if_not_exists(parent);
         }
 
         std::vector<std::weak_ptr<Node>> parents;
@@ -119,9 +117,8 @@ public:
     }
 
     void connect(id_type const &child_id, id_type const &parent_id) {
-        if (!exists(child_id) || !exists(parent_id)) {
-            throw VirusNotFound();
-        }
+        throw_if_not_exists(child_id);
+        throw_if_not_exists(parent_id);
 
         std::shared_ptr<Node> child_ptr = (nodes_.find(child_id)->second).lock();
         std::shared_ptr<Node> parent_ptr = (nodes_.find(parent_id)->second).lock();
@@ -136,9 +133,8 @@ public:
     }
 
     void remove(id_type const &id) {
-        if (!exists(id)) {
-            throw VirusNotFound();
-        }
+        throw_if_not_exists(id);
+
         if (id == get_stem_id()) {
             throw TriedToRemoveStemVirus();
         }
@@ -149,7 +145,6 @@ public:
     }
 
 private:
-
     // Root virus node
     std::shared_ptr<Node> stem_node_;
 
@@ -165,6 +160,12 @@ private:
 
         Node(id_type id) : virus(id) {}
     };
+
+    void throw_if_not_exists(id_type const &id) {
+        if (!exists(id)) {
+            throw VirusNotFound();
+        }
+    }
 
 };
 
