@@ -37,7 +37,7 @@ class VirusGenealogy {
     using id_type = typename Virus::id_type;
 
 public:
-    VirusGenealogy(id_type const &stem_id) {
+    VirusGenealogy(id_type const &stem_id) { // can throw bad_alloc
         std::shared_ptr<Node> new_stem_node = std::make_shared<Node>(stem_id);
 
         stem_node_ = new_stem_node;
@@ -60,7 +60,17 @@ public:
 
     std::vector<id_type> get_children(id_type const &id) const {
         throw_if_not_exists(id);
-        return {};
+
+        std::shared_ptr<Node> node = (nodes_.find(id)->second).lock();
+        const auto& children_nodes = node->children; //vector of shared pointers to children
+
+        std::vector<id_type> ret;
+
+        for (auto node : children_nodes) {
+            ret.emplace_back(node->virus.get_id());
+        }
+
+        return ret;
     }
 
     std::vector<id_type> get_parents(id_type const &id) const {
