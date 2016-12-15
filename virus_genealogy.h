@@ -75,11 +75,12 @@ public:
     std::vector<id_type> get_parents(id_type const &id) const {
         throw_if_not_exists(id);
 
-        std::shared_ptr<Node> node = (nodes_.find(id)->second).lock();
+        std::shared_ptr<Node> node_ptr = (nodes_.find(id)->second).lock();
         // Reference to vector of weak pointers to parents
+        auto& node_parents = node_ptr->parents;
 
         std::vector<id_type> parent_ids;
-        for (auto node : node->parents) {
+        for (auto node : node_parents) {
             std::shared_ptr<Node> parent = node.lock();
             parent_ids.emplace_back(parent->virus.get_id());
         }
