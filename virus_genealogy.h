@@ -38,9 +38,9 @@ class VirusGenealogy {
 
 public:
     VirusGenealogy(id_type const &stem_id) { // can throw bad_alloc
-        stem_node = std::make_shared<Node>(stem_id);
-        auto map_it = nodes_.insert(std::make_pair(stem_id, new_stem_node)).first;
-        stem_node->position = map_it;
+        stem_node_ = std::make_shared<Node>(stem_id);
+        auto map_it = nodes_.insert(std::make_pair(stem_id, stem_node_)).first;
+        stem_node_->position = map_it;
     }
 
     VirusGenealogy(const VirusGenealogy<Virus> &other) = delete;
@@ -61,12 +61,12 @@ public:
         std::shared_ptr<Node> node = (nodes_.find(id)->second).lock();
         const auto& children_nodes = node->children; //vector of shared pointers to children
 
-        std::vector<id_type> ret;
+        std::vector<id_type> children;
         for (auto node : children_nodes) {
-            ret.emplace_back(node->virus.get_id());
+            children.emplace_back(node->virus.get_id());
         }
 
-        return ret;
+        return children;
     }
 
     std::vector<id_type> get_parents(id_type const &id) const {
