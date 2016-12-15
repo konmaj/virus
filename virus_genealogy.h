@@ -154,16 +154,16 @@ public:
         throw_if_not_exists(child_id);
         throw_if_not_exists(parent_id);
 
-        std::shared_ptr<Node> child_ptr = (nodes_.find(child_id)->second).lock();
-        std::shared_ptr<Node> parent_ptr = (nodes_.find(parent_id)->second).lock();
-        auto parents_copy = child_ptr->parents;
-        auto children_copy = parent_ptr->children;
+        std::shared_ptr<Node> child = (nodes_.find(child_id)->second).lock();
+        std::shared_ptr<Node> parent = (nodes_.find(parent_id)->second).lock();
+        auto parents_copy = child->parents;
+        auto children_copy = parent->children;
 
-        parents_copy.insert(std::weak_ptr<Node>(parent_ptr));
-        children_copy.insert(std::shared_ptr<Node>(child_ptr));
+        parents_copy.insert(std::weak_ptr<Node>(parent));
+        children_copy.insert(std::shared_ptr<Node>(child));
 
-        (child_ptr->parents).swap(parents_copy);
-        (parent_ptr->children).swap(children_copy);
+        (child->parents).swap(parents_copy);
+        (parent->children).swap(children_copy);
     }
 
     void remove(id_type const &id) {
@@ -173,9 +173,22 @@ public:
             throw TriedToRemoveStemVirus();
         }
 
-        std::shared_ptr<Node> node_ptr = (nodes_.find(id)->second).lock();
-        std::vector<std::vector<std::shared_ptr<Node>>> children_copies(node_ptr->parents.size());
-        // TODO (copy vectors of children and erase id from them)
+        std::shared_ptr<Node> node = (nodes_.find(id)->second).lock();
+        std::vector<std::set<std::shared_ptr<Node>>> parent_children_copy;
+
+        for (auto& parent : node->parents) {
+            parent_children_copy.emplace_back(parent.lock()->children);
+        }
+
+        for (auto& children : parent_children_copy) {
+            children.erase(node);
+        }
+
+        size_t index = 0;
+        for (auto& parent : node->parents) {
+            (parent.lock()->children).swap(parent_children_copy[index]);
+            index++;
+        }
     }
 
 private:
