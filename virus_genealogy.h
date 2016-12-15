@@ -37,7 +37,7 @@ class VirusGenealogy {
     using id_type = typename Virus::id_type;
 
 public:
-    VirusGenealogy(id_type const &stem_id) { // Hubert
+    VirusGenealogy(id_type const &stem_id) {
         std::shared_ptr<Node> new_stem_node = std::make_shared<Node>(stem_id);
 
         stem_node_ = new_stem_node;
