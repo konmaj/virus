@@ -174,7 +174,7 @@ public:
 
 private:
     // Root virus node
-    std::shared_ptr<Node> stem_node_;
+    const std::shared_ptr<Node> stem_node_;
 
     typename std::map<id_type, std::weak_ptr<Node>> nodes_;
 
