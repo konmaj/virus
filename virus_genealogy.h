@@ -103,14 +103,13 @@ public:
         std::shared_ptr<Node> new_node = std::make_shared<Node>(id);
         // Inserting into map has strong guarantee
         auto map_it = nodes_.insert(std::make_pair(id, new_node)).first;
-
+        
         try {
             new_node->position = map_it;
             connect(id, parent_id);
         } catch(...) {
             new_node->position = nodes_.end();
             nodes_.erase(map_it);
-
             throw;
         }
 
@@ -126,25 +125,37 @@ public:
         }
 
         std::shared_ptr<Node> new_node = std::make_shared<Node>(id);
+
+        // Find pointers to nodes from parent ids.
+        std::vector<std::shared_ptr<Node>> parents;
+        for (auto id : parent_ids) {
+            auto ptr = (nodes_.find(id)->second).lock();
+            parents.emplace_back(ptr);
+        }
+
+        // Clone all children sets
+        std::vector<std::set<std::shared_ptr<Node>>> parent_children_copy;
+        for (auto parent : parents) {
+            auto children_copy = parent->children;
+            parent_children_copy.emplace_back(children_copy);
+        }
+
+        // Add child to each children set
+        for (auto children : parent_children_copy) {
+            children.insert(new_node);
+        }
+
+        // Add parents to parents set
+        for (auto parent : parents) {
+            new_node->parents.insert(parent);
+        }
+
+        // Copying went ok, so we can add new node to map
         auto map_it = nodes_.insert(std::make_pair(id, new_node)).first;
+        new_node->position = map_it;
 
-        try {
-            new_node->position = map_it;
-
-            for (auto parent : parent_ids) {
-                connect(id, parent);
-            }
-
-        } catch (...) {
-            new_node->position = nodes_.end();
-            nodes_.erase(map_it);
-
-            for (const auto& parent : parent_ids) {
-                auto parent_ptr = (nodes_.find(parent)->second).lock();
-                (parent_ptr->children).erase(new_node);
-            }
-
-            throw;
+        for (size_t i = 0; i < parents.size(); i++) {
+            (parents[i]->children).swap(parent_children_copy[i]);
         }
     }
 
@@ -183,8 +194,7 @@ private:
     std::map<id_type, std::weak_ptr<Node>> nodes_;
 
     struct Node {
-        std::set<std::shared_ptr<Node>,
-            std::owner_less<std::shared_ptr<Node>>> children;
+        std::set<std::shared_ptr<Node> > children;
         std::set<std::weak_ptr<Node>,
             std::owner_less<std::weak_ptr<Node>>> parents;
 
@@ -193,6 +203,9 @@ private:
         Virus virus;
 
         Node(id_type id) : virus(id) {}
+//      ~Node() {
+//          nodes_.erase(position);
+//      }
     };
 
     void throw_if_not_exists(id_type const &id) const {
