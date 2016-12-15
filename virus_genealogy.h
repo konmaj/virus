@@ -59,7 +59,9 @@ public:
         throw_if_not_exists(id);
 
         std::shared_ptr<Node> node = (nodes_.find(id)->second).lock();
-        const auto& children_nodes = node->children; //vector of shared pointers to children
+
+        // Reference to vector of shared pointers to children
+        const auto& children_nodes = node->children;
 
         std::vector<id_type> children_ids;
         for (auto node : children_nodes) {
@@ -73,7 +75,8 @@ public:
         throw_if_not_exists(id);
 
         std::shared_ptr<Node> node = (nodes_.find(id)->second).lock();
-        const auto& parent_nodes = node->parents; //vector of weak pointers to parents
+        // Reference to vector of weak pointers to parents
+        const auto& parent_nodes = node->parents;
 
         std::vector<id_type> ret;
         for (auto node : parent_nodes) {
@@ -123,7 +126,7 @@ public:
 
         try {
             new_node->position = map_it;
-            
+
             for (auto parent : parent_ids) {
                 connect(id, parent);
             }
