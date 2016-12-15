@@ -39,14 +39,18 @@ class VirusGenealogy {
 
 public:
     VirusGenealogy(id_type const &stem_id)
-        : stem_node_(std::make_shared<Node>(stem_id))  { // can throw bad_alloc
-        auto map_it = nodes_.insert(std::make_pair(stem_id, stem_node_)).first;
-        stem_node_->position = map_it;
+        : stem_node_(std::make_shared<Node>(*this, stem_id)),
+          nodes_(std::map<id_type, std::weak_ptr<Node>>{{stem_id, stem_node_}}) {
+        stem_node_->position = nodes_.begin();
     }
 
     VirusGenealogy(const VirusGenealogy<Virus> &other) = delete;
 
     VirusGenealogy<Virus>& operator=(const VirusGenealogy<Virus> &other) = delete;
+    
+    ~VirusGenealogy() {
+        stem_node_.reset();
+    }
 
     id_type get_stem_id() const {
         return (stem_node_->virus).get_id();
@@ -94,8 +98,7 @@ public:
     }
 
     void create(id_type const &id, id_type const &parent_id) {
-        std::vector<id_type> id_vec{parent_id};
-        create(id, id_vec);
+        create(id, std::vector<id_type>{parent_id});
     }
 
     void create(id_type const &id, std::vector<id_type> const &parent_ids) {
@@ -112,7 +115,7 @@ public:
             throw_if_not_exists(parent);
         }
 
-        std::shared_ptr<Node> new_node = std::make_shared<Node>(id);
+        std::shared_ptr<Node> new_node = std::make_shared<Node>(*this, id);
 
         // Find pointers to nodes from parent ids.
         std::vector<std::shared_ptr<Node>> parents;
@@ -177,23 +180,24 @@ public:
 
 private:
     // Root virus node
-    const std::shared_ptr<Node> stem_node_;
+    std::shared_ptr<Node> stem_node_;
 
     std::map<id_type, std::weak_ptr<Node>> nodes_;
 
     struct Node {
-        std::set<std::shared_ptr<Node> > children;
+        std::set<std::shared_ptr<Node>> children;
         std::set<std::weak_ptr<Node>,
-            std::owner_less<std::weak_ptr<Node>>> parents;
-
+                 std::owner_less<std::weak_ptr<Node>>> parents;
+        VirusGenealogy<Virus>& genealogy;
         typename std::map<id_type, std::weak_ptr<Node>>::iterator position;
 
         Virus virus;
 
-        Node(id_type id) : virus(id) {}
-//      ~Node() {
-//          nodes_.erase(position);
-//      }
+        Node(VirusGenealogy<Virus>& virusGenealogy, id_type id) : genealogy(virusGenealogy), virus(id) {}
+        
+        ~Node() {
+            genealogy.nodes_.erase(position);
+        }
     };
 
     void throw_if_not_exists(id_type const &id) const {
