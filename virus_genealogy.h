@@ -110,6 +110,8 @@ public:
         } catch(...) {
             new_node->position = nodes_.end();
             nodes_.erase(map_it);
+
+            throw;
         }
 
     }
@@ -141,6 +143,8 @@ public:
                 auto parent_ptr = (nodes_.find(parent)->second).lock();
                 (parent_ptr->children).erase(new_node);
             }
+
+            throw;
         }
     }
 
@@ -176,7 +180,7 @@ private:
     // Root virus node
     const std::shared_ptr<Node> stem_node_;
 
-    typename std::map<id_type, std::weak_ptr<Node>> nodes_;
+    std::map<id_type, std::weak_ptr<Node>> nodes_;
 
     struct Node {
         std::set<std::shared_ptr<Node>,
