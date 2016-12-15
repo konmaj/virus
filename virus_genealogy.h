@@ -28,7 +28,7 @@ class TriedToRemoveStemVirus : public std::exception {
     }
 };
 
-template <typename Virus>
+template <class Virus>
 class VirusGenealogy {
 private:
 
