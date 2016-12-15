@@ -77,10 +77,9 @@ public:
 
         std::shared_ptr<Node> node = (nodes_.find(id)->second).lock();
         // Reference to vector of weak pointers to parents
-        const auto& parent_nodes = node->parents;
 
         std::vector<id_type> parent_ids;
-        for (auto node : parent_nodes) {
+        for (auto node : node->parents) {
             std::shared_ptr<Node> parent = node.lock();
             parent_ids.emplace_back(parent->virus.get_id());
         }
@@ -146,13 +145,13 @@ public:
         }
 
         // Add child to each children set
-        for (auto children : parent_children_copy) {
+        for (auto& children : parent_children_copy) {
             children.insert(new_node);
         }
 
         // Add parents to parents set
-        for (auto parent : parents) {
-            new_node->parents.insert(parent);
+        for (auto& parent : parents) {
+            (new_node->parents).insert(parent);
         }
 
         // Copying went ok, so we can add new node to map
