@@ -30,27 +30,11 @@ class TriedToRemoveStemVirus : public std::exception {
 
 template <class Virus>
 class VirusGenealogy {
-private:
 
     struct Node;
+
     // Internal type for Virus IDs
     using id_type = typename Virus::id_type;
-
-    // Root virus node
-    std::shared_ptr<Node> stem_node_;
-
-    typename std::map<id_type, std::weak_ptr<Node>> nodes_;
-
-    struct Node {
-        std::vector<std::shared_ptr<Node>> children;
-        std::vector<std::weak_ptr<Node>> parents;
-
-        typename std::map<id_type, std::weak_ptr<Node>>::iterator position;
-
-        Virus virus;
-
-        Node(id_type id) : virus(id) {}
-    };
 
 public:
     VirusGenealogy(id_type const &stem_id) { // Hubert
@@ -163,6 +147,25 @@ public:
         std::vector<std::vector<std::shared_ptr<Node>>> children_copies(node_ptr->parents.size());
         // TODO (copy vectors of children and erase id from them)
     }
+
+private:
+
+    // Root virus node
+    std::shared_ptr<Node> stem_node_;
+
+    typename std::map<id_type, std::weak_ptr<Node>> nodes_;
+
+    struct Node {
+        std::vector<std::shared_ptr<Node>> children;
+        std::vector<std::weak_ptr<Node>> parents;
+
+        typename std::map<id_type, std::weak_ptr<Node>>::iterator position;
+
+        Virus virus;
+
+        Node(id_type id) : virus(id) {}
+    };
+
 };
 
 #endif //VIRUS_GENEALOGY_H_
