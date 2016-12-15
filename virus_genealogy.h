@@ -105,7 +105,7 @@ public:
         if (exists(id)) {
             throw VirusAlreadyCreated();
         }
-        
+
         // Virus must have at least one parent
         if (parent_ids.empty()) {
             throw VirusNotFound();
@@ -172,36 +172,36 @@ public:
         if (id == get_stem_id()) {
             throw TriedToRemoveStemVirus();
         }
-        
+
         std::weak_ptr<Node> weak_node = nodes_.find(id)->second;
         std::shared_ptr<Node> node = weak_node.lock();
         std::vector<std::set<std::shared_ptr<Node>>> parent_children_copy;
-        std::vector<std::set<std::weak_ptr<Node>, 
-                             std::owner_less<std::weak_ptr<Node>>>> 
+        std::vector<std::set<std::weak_ptr<Node>,
+                             std::owner_less<std::weak_ptr<Node>>>>
                                   child_parents_copy;
 
         for (auto& parent : node->parents) {
             parent_children_copy.emplace_back(parent.lock()->children);
         }
-        
+
         for (auto& children : parent_children_copy) {
             children.erase(node);
         }
-        
+
         for (auto& child : node->children) {
             child_parents_copy.emplace_back(child->parents);
         }
-        
+
         for (auto& parents : child_parents_copy) {
             parents.erase(weak_node);
         }
-        
+
         size_t index = 0;
         for (auto& parent : node->parents) {
             (parent.lock()->children).swap(parent_children_copy[index]);
             index++;
         }
-        
+
         index = 0;
         for (auto& child : node->children) {
             (child->parents).swap(child_parents_copy[index]);
@@ -224,7 +224,8 @@ private:
 
         Virus virus;
 
-        Node(VirusGenealogy<Virus>& virusGenealogy, id_type id) : genealogy(virusGenealogy), virus(id) {}
+        Node(VirusGenealogy<Virus>& virusGenealogy, id_type id)
+            : genealogy(virusGenealogy), virus(id) {}
 
         ~Node() {
             genealogy.nodes_.erase(position);
