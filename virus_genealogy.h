@@ -38,8 +38,8 @@ class VirusGenealogy {
     using id_type = typename Virus::id_type;
 
 public:
-    VirusGenealogy(id_type const &stem_id) { // can throw bad_alloc
-        stem_node_ = std::make_shared<Node>(stem_id);
+    VirusGenealogy(id_type const &stem_id)
+        : stem_node_(std::make_shared<Node>(stem_id))  { // can throw bad_alloc
         auto map_it = nodes_.insert(std::make_pair(stem_id, stem_node_)).first;
         stem_node_->position = map_it;
     }
