@@ -78,13 +78,13 @@ public:
         // Reference to vector of weak pointers to parents
         const auto& parent_nodes = node->parents;
 
-        std::vector<id_type> ret;
+        std::vector<id_type> parent_ids;
         for (auto node : parent_nodes) {
             std::shared_ptr<Node> parent = node.lock();
-            ret.emplace_back(parent->virus.get_id());
+            parent_ids.emplace_back(parent->virus.get_id());
         }
 
-        return ret;
+        return parent_ids;
     }
 
     Virus& operator[](id_type const &id) const {
