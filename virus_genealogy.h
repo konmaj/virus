@@ -119,6 +119,11 @@ public:
         if (exists(id)) {
             throw VirusAlreadyCreated();
         }
+        
+        // Virus must have at least one parent
+        if (parent_ids.empty()) {
+            throw VirusNotFound();
+        }
 
         for (const auto& parent : parent_ids) {
             throw_if_not_exists(parent);
