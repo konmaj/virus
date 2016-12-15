@@ -65,7 +65,6 @@ public:
 
     Virus& operator[](id_type const &id) const {
         throw_if_not_exists(id);
-
         return (nodes_.find(id)->second).lock()->virus;
     }
 
