@@ -38,7 +38,10 @@ class VirusGenealogy {
 
 public:
     VirusGenealogy(id_type const &stem_id) { // Hubert
+        std::shared_ptr<Node> stem_node = std::make_shared<Node>(stem_id);
 
+        auto map_it = nodes_.insert(std::make_pair(stem_id, stem_node)).first;
+        stem_node->position = map_it;
     }
 
     VirusGenealogy(const VirusGenealogy<Virus> &other) = delete;
@@ -158,7 +161,7 @@ private:
         Node(id_type id) : virus(id) {}
     };
 
-    void throw_if_not_exists(id_type const &id) {
+    void throw_if_not_exists(id_type const &id) const {
         if (!exists(id)) {
             throw VirusNotFound();
         }
