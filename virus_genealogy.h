@@ -118,6 +118,20 @@ public:
             }
         }
 
+        std::vector<std::weak_ptr<Node>> parents;
+        for(auto id : parent_ids) {
+            parents.emplace_back(nodes_.find(id)->second);
+        }
+
+        std::shared_ptr<Node> new_node = std::make_shared<Node>(id);
+        auto map_it = nodes_.insert(std::make_pair(id, new_node)).first;
+
+        try {
+        } catch (...) {
+            new_node->position = nodes_.end();
+            nodes_.erase(map_it);
+
+        }
     }
 
     void connect(id_type const &child_id, id_type const &parent_id) {
