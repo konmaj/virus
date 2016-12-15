@@ -8,6 +8,8 @@ set(HEADER_FILES ./virus_genealogy.h)
 include_directories(.)
 
 add_executable(example_test tests/example_test.cpp ${HEADER_FILES})
+add_executable(better_test tests/better_test.cpp ${HEADER_FILES})
 
 enable_testing()
 add_test(example example_test)
+add_test(better better_test)
