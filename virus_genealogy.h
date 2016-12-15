@@ -49,10 +49,7 @@ private:
 
         Virus virus;
 
-        // TODO (constructor)
-        ~Node() {
-            nodes_.erase(position);
-        }
+        Node(id_type id) : virus(id) {}
     };
 
 public:
@@ -72,9 +69,13 @@ public:
         return nodes_.find(id) != nodes_.end();
     }
 
-    std::vector<id_type> get_children(id_type const &id) const {} // Hubert
+    std::vector<id_type> get_children(id_type const &id) const {
+        return {};
+    }
 
-    std::vector<id_type> get_parents(id_type const &id) const {} // Hubert
+    std::vector<id_type> get_parents(id_type const &id) const {
+        return {};
+    }
 
     Virus& operator[](id_type const &id) const {
         if (!exists(id)) {
@@ -93,6 +94,17 @@ public:
             throw VirusNotFound();
         }
 
+        std::shared_ptr<Node> new_node = std::make_shared<Node>(id);
+        auto map_it = nodes_.insert(std::make_pair(id, new_node)).first;
+
+        try {
+            new_node->position = map_it;
+            connect(id, parent_id);
+        } catch(...) {
+            new_node->position = nodes_.end();
+            nodes_.erase(map_it);
+        }
+
     }
 
     void create(id_type const &id, std::vector<id_type> const &parent_ids) {
@@ -100,11 +112,12 @@ public:
             throw VirusAlreadyCreated();
         }
 
-        for (const auto& parent : parent_id) {
+        for (const auto& parent : parent_ids) {
             if(!exists(parent)) {
                 throw VirusNotFound();
             }
         }
+
     }
 
     void connect(id_type const &child_id, id_type const &parent_id) {
