@@ -64,9 +64,7 @@ public:
     }
 
     Virus& operator[](id_type const &id) const {
-        if (!exists(id)) {
-            throw VirusNotFound();
-        }
+        throw_if_not_exists(id);
 
         return (nodes_.find(id)->second).lock()->virus;
     }
