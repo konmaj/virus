@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <set>
 
 class VirusAlreadyCreated : public std::exception {
 public:
@@ -93,13 +94,14 @@ public:
     }
 
     void create(id_type const &id, id_type const &parent_id) {
+        throw_if_not_exists(parent_id);
+
         if (exists(id)) {
             throw VirusAlreadyCreated();
         }
 
-        throw_if_not_exists(parent_id);
-
         std::shared_ptr<Node> new_node = std::make_shared<Node>(id);
+        // Inserting into map has strong guarantee
         auto map_it = nodes_.insert(std::make_pair(id, new_node)).first;
 
         try {
@@ -134,7 +136,11 @@ public:
         } catch (...) {
             new_node->position = nodes_.end();
             nodes_.erase(map_it);
-            // TODO rollback parents
+
+            for (const auto& parent : parent_ids) {
+                auto parent_ptr = (nodes_.find(parent)->second).lock();
+                (parent_ptr->children).erase(new_node);
+            }
         }
     }
 
@@ -147,8 +153,8 @@ public:
         auto parents_copy = child_ptr->parents;
         auto children_copy = parent_ptr->children;
 
-        parents_copy.emplace_back(std::weak_ptr<Node>(parent_ptr));
-        children_copy.emplace_back(std::shared_ptr<Node>(child_ptr));
+        parents_copy.insert(std::weak_ptr<Node>(parent_ptr));
+        children_copy.insert(std::shared_ptr<Node>(child_ptr));
 
         (child_ptr->parents).swap(parents_copy);
         (parent_ptr->children).swap(children_copy);
@@ -173,8 +179,10 @@ private:
     typename std::map<id_type, std::weak_ptr<Node>> nodes_;
 
     struct Node {
-        std::vector<std::shared_ptr<Node>> children;
-        std::vector<std::weak_ptr<Node>> parents;
+        std::set<std::shared_ptr<Node>,
+            std::owner_less<std::shared_ptr<Node>>> children;
+        std::set<std::weak_ptr<Node>,
+            std::owner_less<std::weak_ptr<Node>>> parents;
 
         typename std::map<id_type, std::weak_ptr<Node>>::iterator position;
 
