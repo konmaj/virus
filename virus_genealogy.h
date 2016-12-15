@@ -138,7 +138,7 @@ public:
 
         // Add parents to parents set
         for (auto& parent : parents) {
-            (new_node->parents).insert(parent);
+            new_node->parents.insert(parent);
         }
 
         // Copying went ok, so we can add new node to map
