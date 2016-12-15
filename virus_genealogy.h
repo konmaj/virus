@@ -61,12 +61,12 @@ public:
         std::shared_ptr<Node> node = (nodes_.find(id)->second).lock();
         const auto& children_nodes = node->children; //vector of shared pointers to children
 
-        std::vector<id_type> children;
+        std::vector<id_type> children_ids;
         for (auto node : children_nodes) {
-            children.emplace_back(node->virus.get_id());
+            children_ids.emplace_back(node->virus.get_id());
         }
 
-        return children;
+        return children_ids;
     }
 
     std::vector<id_type> get_parents(id_type const &id) const {
