@@ -66,10 +66,10 @@ public:
         std::shared_ptr<Node> node = (nodes_.find(id)->second).lock();
 
         // Reference to vector of shared pointers to children
-        const auto& children_nodes = node->children;
+        const auto &children_nodes = node->children;
 
         std::vector<id_type> children_ids;
-        for (auto node : children_nodes) {
+        for (const auto &node : children_nodes) {
             children_ids.emplace_back(node->virus.get_id());
         }
 
@@ -81,10 +81,10 @@ public:
 
         std::shared_ptr<Node> node_ptr = (nodes_.find(id)->second).lock();
         // Reference to vector of weak pointers to parents
-        auto& node_parents = node_ptr->parents;
+        auto &node_parents = node_ptr->parents;
 
         std::vector<id_type> parent_ids;
-        for (auto node : node_parents) {
+        for (const auto &node : node_parents) {
             std::shared_ptr<Node> parent = node.lock();
             parent_ids.emplace_back(parent->virus.get_id());
         }
@@ -111,7 +111,7 @@ public:
             throw VirusNotFound();
         }
 
-        for (const auto& parent : parent_ids) {
+        for (const auto &parent : parent_ids) {
             throw_if_not_exists(parent);
         }
 
@@ -119,25 +119,23 @@ public:
 
         // Find pointers to nodes from parent ids.
         std::vector<std::shared_ptr<Node>> parents;
-        for (auto id : parent_ids) {
-            auto ptr = (nodes_.find(id)->second).lock();
-            parents.emplace_back(ptr);
+        for (const auto &id : parent_ids) {
+            parents.emplace_back((nodes_.find(id)->second).lock());
         }
 
         // Clone all children sets
         std::vector<std::set<std::shared_ptr<Node>>> parent_children_copy;
         for (auto parent : parents) {
-            auto children_copy = parent->children;
-            parent_children_copy.emplace_back(children_copy);
+            parent_children_copy.emplace_back(parent->children);
         }
 
         // Add child to each children set
-        for (auto& children : parent_children_copy) {
+        for (auto &children : parent_children_copy) {
             children.insert(new_node);
         }
 
         // Add parents to parents set
-        for (auto& parent : parents) {
+        for (auto &parent : parents) {
             new_node->parents.insert(parent);
         }
 
@@ -180,30 +178,30 @@ public:
                              std::owner_less<std::weak_ptr<Node>>>>
                                   child_parents_copy;
 
-        for (auto& parent : node->parents) {
+        for (auto &parent : node->parents) {
             parent_children_copy.emplace_back(parent.lock()->children);
         }
 
-        for (auto& children : parent_children_copy) {
+        for (auto &children : parent_children_copy) {
             children.erase(node);
         }
 
-        for (auto& child : node->children) {
+        for (auto &child : node->children) {
             child_parents_copy.emplace_back(child->parents);
         }
 
-        for (auto& parents : child_parents_copy) {
+        for (auto &parents : child_parents_copy) {
             parents.erase(weak_node);
         }
 
         size_t index = 0;
-        for (auto& parent : node->parents) {
+        for (auto &parent : node->parents) {
             (parent.lock()->children).swap(parent_children_copy[index]);
             index++;
         }
 
         index = 0;
-        for (auto& child : node->children) {
+        for (auto &child : node->children) {
             (child->parents).swap(child_parents_copy[index]);
             index++;
         }
@@ -219,12 +217,12 @@ private:
         std::set<std::shared_ptr<Node>> children;
         std::set<std::weak_ptr<Node>,
                  std::owner_less<std::weak_ptr<Node>>> parents;
-        VirusGenealogy<Virus>& genealogy;
+        VirusGenealogy<Virus> &genealogy;
         typename std::map<id_type, std::weak_ptr<Node>>::iterator position;
 
         Virus virus;
 
-        Node(VirusGenealogy<Virus>& virusGenealogy, id_type id)
+        Node(VirusGenealogy<Virus> &virusGenealogy, id_type id)
             : genealogy(virusGenealogy), virus(id) {}
 
         ~Node() {
