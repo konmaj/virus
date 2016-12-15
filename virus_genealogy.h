@@ -65,7 +65,6 @@ public:
         const auto& children_nodes = node->children; //vector of shared pointers to children
 
         std::vector<id_type> ret;
-
         for (auto node : children_nodes) {
             ret.emplace_back(node->virus.get_id());
         }
@@ -75,7 +74,17 @@ public:
 
     std::vector<id_type> get_parents(id_type const &id) const {
         throw_if_not_exists(id);
-        return {};
+
+        std::shared_ptr<Node> node = (nodes_.find(id)->second).lock();
+        const auto& parent_nodes = node->parents; //vector of weak pointers to parents
+
+        std::vector<id_type> ret;
+        for (auto node : parent_nodes) {
+            std::shared_ptr<Node> parent = node.lock();
+            ret.emplace_back(parent->virus.get_id());
+        }
+
+        return ret;
     }
 
     Virus& operator[](id_type const &id) const {
@@ -112,19 +121,20 @@ public:
             throw_if_not_exists(parent);
         }
 
-        std::vector<std::weak_ptr<Node>> parents;
-        for(auto id : parent_ids) {
-            parents.emplace_back(nodes_.find(id)->second);
-        }
-
         std::shared_ptr<Node> new_node = std::make_shared<Node>(id);
         auto map_it = nodes_.insert(std::make_pair(id, new_node)).first;
 
         try {
+            new_node->position = map_it;
+            
+            for (auto parent : parent_ids) {
+                connect(id, parent);
+            }
+
         } catch (...) {
             new_node->position = nodes_.end();
             nodes_.erase(map_it);
-
+            // TODO rollback parents
         }
     }
 
