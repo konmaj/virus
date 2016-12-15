@@ -93,25 +93,8 @@ public:
     }
 
     void create(id_type const &id, id_type const &parent_id) {
-        throw_if_not_exists(parent_id);
-
-        if (exists(id)) {
-            throw VirusAlreadyCreated();
-        }
-
-        std::shared_ptr<Node> new_node = std::make_shared<Node>(id);
-        // Inserting into map has strong guarantee
-        auto map_it = nodes_.insert(std::make_pair(id, new_node)).first;
-        
-        try {
-            new_node->position = map_it;
-            connect(id, parent_id);
-        } catch(...) {
-            new_node->position = nodes_.end();
-            nodes_.erase(map_it);
-            throw;
-        }
-
+        std::vector<id_type> id_vec{parent_id};
+        create(id, id_vec);
     }
 
     void create(id_type const &id, std::vector<id_type> const &parent_ids) {
