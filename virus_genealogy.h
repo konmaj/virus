@@ -8,21 +8,21 @@
 #include <vector>
 
 class VirusAlreadyCreated : public std::exception {
-  public:
+public:
     const char* what() const noexcept {
         return "VirusAlreadyCreated";
     }
 };
 
 class VirusNotFound : public std::exception {
-  public:
+public:
     const char* what() const noexcept {
         return "VirusNotFound";
     }
 };
 
 class TriedToRemoveStemVirus : public std::exception {
-  public:
+public:
     const char* what() const noexcept {
         return "TriedToRemoveStemVirus";
     }
